@@ -42,7 +42,26 @@ base_url = 'https://tululu.org/'
 download_book_url = 'https://tululu.org/txt.php?id={}'
 book_url = 'https://tululu.org/b{}/'
 
-for i in range(1, 11):
+
+def parse_book_page(html):
+    soup = BeautifulSoup(html.text, 'lxml')
+    title, author = map(str.strip, soup.find('h1').text.split('::'))
+    book_cover = soup.find('div', class_='bookimage').find('img').get('src')
+    book_genres = [genres.text for genres in soup.find('span', class_='d_book').find_all('a')]
+    description = soup.find(id='content').find_all('table')[2].text
+    comments = [comment.find('span', class_='black').text for comment in soup.find_all('div', class_='texts')]
+    
+    return {
+        'title': title,
+        'author': author,
+        'book_cover': book_cover,
+        'book_genres': book_genres,
+        'description': description,
+        'comments': comments
+    }
+    
+    
+for i in range(5, 6):
     try:
         response = requests.get(book_url.format(i), allow_redirects=False)
         response.raise_for_status()
@@ -59,14 +78,7 @@ for i in range(1, 11):
         book_cover_url = urljoin(base_url, book_cover)
         # print(title, book_cover_url, sep='\n', end='\n\n')
         # download_image(book_cover_url)
-        print(f'Заголовок: {title}')
-        
-        # comments = soup.find_all('div', class_='texts')
-        # for comment in comments:
-        #     content_comment = comment.find('span', class_='black').text
-        #     print(content_comment)
-        
+        # print(f'Заголовок: {title}')
+        comments = [comment.find('span', class_='black').text for comment in soup.find_all('div', class_='texts')]
         book_genres = [genres.text for genres in soup.find('span', class_='d_book').find_all('a')]
-        print(book_genres, end='\n\n')
-
-    
+        description = soup.find(id='content').find_all('table')[2].text
