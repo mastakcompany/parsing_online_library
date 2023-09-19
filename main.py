@@ -48,7 +48,7 @@ for i in range(1, 11):
         response.raise_for_status()
         check_for_redirect(response)
     except requests.HTTPError:
-        print(f'Обнаружен редирект, книга c id: {i} не скачана!')
+        print(f'Обнаружен редирект, книга c id: {i} не скачана!\n')
     else:
         soup = BeautifulSoup(response.text, 'lxml')
         title = soup.find('h1').text.split('::')[0].strip()
@@ -57,13 +57,16 @@ for i in range(1, 11):
         
         book_cover = soup.find('div', class_='bookimage').find('img').get('src')
         book_cover_url = urljoin(base_url, book_cover)
-        print(title, book_cover_url, sep='\n', end='\n\n')
-        download_image(book_cover_url)
+        # print(title, book_cover_url, sep='\n', end='\n\n')
+        # download_image(book_cover_url)
+        print(f'Заголовок: {title}')
         
-        comments = soup.find_all('div', class_='texts')
-        for comment in comments:
-            content_comment = comment.find('span', class_='black').text
-            print(content_comment)
-        print()
+        # comments = soup.find_all('div', class_='texts')
+        # for comment in comments:
+        #     content_comment = comment.find('span', class_='black').text
+        #     print(content_comment)
+        
+        book_genres = [genres.text for genres in soup.find('span', class_='d_book').find_all('a')]
+        print(book_genres, end='\n\n')
 
     
