@@ -53,9 +53,17 @@ for i in range(1, 11):
         soup = BeautifulSoup(response.text, 'lxml')
         title = soup.find('h1').text.split('::')[0].strip()
         url = download_book_url.format(i)
-        download_txt(url, title)
+        # download_txt(url, title)
         
         book_cover = soup.find('div', class_='bookimage').find('img').get('src')
         book_cover_url = urljoin(base_url, book_cover)
         print(title, book_cover_url, sep='\n', end='\n\n')
         download_image(book_cover_url)
+        
+        comments = soup.find_all('div', class_='texts')
+        for comment in comments:
+            content_comment = comment.find('span', class_='black').text
+            print(content_comment)
+        print()
+
+    
