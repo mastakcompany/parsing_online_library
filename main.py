@@ -10,10 +10,6 @@ from pathvalidate import sanitize_filename
 from bs4 import BeautifulSoup
 
 
-def eprint(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
-
-
 def get_parser():
     parser = argparse.ArgumentParser(description='The program downloads a range of books, by their id')
     parser.add_argument('start_id', help='Initial book id, default=1', default=1, type=int, nargs='?')
@@ -101,7 +97,7 @@ def main():
             try:
                 get_book_info(book_id, download_book_url, book_url_template, base_url)
             except ConnectionError as e:
-                eprint(f'Исключение: {e}!\nБудет предпринята повторная попытка для id {book_id}.')
+                print(f'Исключение: {e}!\nБудет предпринята повторная попытка для id {book_id}.', file=sys.stderr)
                 if is_first_attempt:
                     is_first_attempt = False
                     time.sleep(1)
@@ -109,7 +105,7 @@ def main():
                     time.sleep(5)
                 continue
             except HTTPError as e:
-                eprint(f'Исключение: {e}!\nКнига с id {book_id} не скачана.')
+                print(f'Исключение: {e}!\nКнига с id {book_id} не скачана.', file=sys.stderr)
                 break
             else:
                 break
