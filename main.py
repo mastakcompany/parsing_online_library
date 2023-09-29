@@ -67,7 +67,7 @@ def parse_book_page(html, book_url):
     }
 
 
-def get_book_info(book_id, download_book_url, book_url, base_url):
+def fetch_and_download_book_info(book_id, download_book_url, book_url, base_url):
     try:
         response = requests.get(book_url.format(book_id), allow_redirects=False)
         response.raise_for_status()
@@ -95,7 +95,7 @@ def main():
         is_first_attempt = True
         while True:
             try:
-                get_book_info(book_id, download_book_url, book_url_template, base_url)
+                fetch_and_download_book_info(book_id, download_book_url, book_url_template, base_url)
             except ConnectionError as e:
                 print(f'Исключение: {e}!\nБудет предпринята повторная попытка для id {book_id}.', file=sys.stderr)
                 if is_first_attempt:
