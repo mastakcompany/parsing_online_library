@@ -93,13 +93,13 @@ def main():
     
     base_url = 'https://tululu.org/'
     download_book_url = 'https://tululu.org/txt.php'
-    book_url = 'https://tululu.org/b{}/'
+    book_url_template = 'https://tululu.org/b{}/'
     
     for book_id in range(args.start_id, args.end_id + 1):
         is_first_attempt = True
         while True:
             try:
-                get_book_info(book_id, download_book_url, book_url, base_url)
+                get_book_info(book_id, download_book_url, book_url_template, base_url)
             except ConnectionError as e:
                 eprint(f'Исключение: {e}!\nБудет предпринята повторная попытка для id {book_id}.')
                 if is_first_attempt:
