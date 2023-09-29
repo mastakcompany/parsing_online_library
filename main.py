@@ -47,11 +47,12 @@ def download_image(url, folder='images/'):
         file.write(response.content)
 
 
-def parse_book_page(html, book_url):
+def parse_book_page(html):
+    base_url = 'https://tululu.org/'
     soup = BeautifulSoup(html.text, 'lxml')
     title, author = map(str.strip, soup.find('h1').text.split('::'))
     book_cover = soup.find('div', class_='bookimage').find('img').get('src')
-    book_cover_url = urljoin(book_url, book_cover)
+    book_cover_url = urljoin(base_url, book_cover)
     book_genres = [genres.text for genres in soup.find('span', class_='d_book').find_all('a')]
     description = soup.find(id='content').find_all('table')[2].text
     comments = [comment.find('span', class_='black').text for comment in soup.find_all('div', class_='texts')]
@@ -67,27 +68,21 @@ def parse_book_page(html, book_url):
     }
 
 
-def fetch_and_download_book_info(book_id, download_book_url, book_url, base_url):
-    try:
-        response = requests.get(book_url.format(book_id), allow_redirects=False)
-        response.raise_for_status()
-        check_for_redirect(response)
-    except requests.HTTPError:
-        print(f'Обнаружен редирект, книга c id: {book_id} не скачана!\n')
-    
-    else:
-        book_content = parse_book_page(response, base_url)
-        title, author, book_cover_url = book_content['title'], book_content['author'], book_content['book_cover_url']
-        download_txt(download_book_url, book_id, title)
-        download_image(book_cover_url)
-        print(f'Название: {title}\nАвтор: {author}', end='\n\n')
+def fetch_and_download_book_info(book_id, download_book_url, book_url):
+    response = requests.get(book_url.format(book_id), allow_redirects=False)
+    response.raise_for_status()
+    check_for_redirect(response)
+    book_content = parse_book_page(response)
+    title, author, book_cover_url = book_content['title'], book_content['author'], book_content['book_cover_url']
+    download_txt(download_book_url, book_id, title)
+    download_image(book_cover_url)
+    print(f'Название: {title}\nАвтор: {author}', end='\n\n')
 
 
 def main():
     parser = get_parser()
     args = parser.parse_args()
     
-    base_url = 'https://tululu.org/'
     download_book_url = 'https://tululu.org/txt.php'
     book_url_template = 'https://tululu.org/b{}/'
     
@@ -95,7 +90,7 @@ def main():
         is_first_attempt = True
         while True:
             try:
-                fetch_and_download_book_info(book_id, download_book_url, book_url_template, base_url)
+                fetch_and_download_book_info(book_id, download_book_url, book_url_template)
             except ConnectionError as e:
                 print(f'Исключение: {e}!\nБудет предпринята повторная попытка для id {book_id}.', file=sys.stderr)
                 if is_first_attempt:
@@ -104,8 +99,8 @@ def main():
                 else:
                     time.sleep(5)
                 continue
-            except HTTPError as e:
-                print(f'Исключение: {e}!\nКнига с id {book_id} не скачана.', file=sys.stderr)
+            except HTTPError:
+                print(f'Исключение!\nКнига с id {book_id} не скачана.', file=sys.stderr)
                 break
             else:
                 break
