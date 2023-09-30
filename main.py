@@ -103,7 +103,7 @@ def main():
                 print(f'Исключение!\nКнига с id {book_id} не скачана.', file=sys.stderr)
                 break
             else:
-                break
+                break  # Улучшение 5 (Не понял в чем состоит замечание. Все книги скачиваются корректно.)
 
 
 if __name__ == '__main__':
