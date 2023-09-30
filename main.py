@@ -29,6 +29,7 @@ def download_txt(url, book_id, filename, folder='books/'):
     Path(Path.cwd() / folder).mkdir(exist_ok=True)
     response = requests.get(url, params=payload)
     response.raise_for_status()
+    check_for_redirect(response)
     path_to_save_book = Path(f'{folder}/{book_name}.txt')
     
     with open(path_to_save_book, 'wb') as file:
@@ -40,6 +41,7 @@ def download_txt(url, book_id, filename, folder='books/'):
 def download_image(url, folder='images/'):
     response = requests.get(url)
     response.raise_for_status()
+    check_for_redirect(response)
     Path(Path.cwd() / folder).mkdir(exist_ok=True)
     book_name = urlsplit(url).path.split('/')[-1]
     
@@ -100,7 +102,7 @@ def main():
                     time.sleep(5)
                 continue
             except HTTPError:
-                print(f'Исключение!\nКнига с id {book_id} не скачана.', file=sys.stderr)
+                print(f'Исключение!\nКнига с id {book_id} не скачана.\n', file=sys.stderr)
                 break
             else:
                 break  # Улучшение 5 (Не понял в чем состоит замечание. Все книги скачиваются корректно.)
